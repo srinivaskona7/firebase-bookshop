@@ -30,21 +30,33 @@ fullstack-nodejs-app/
 │   ├── .gitignore          # Backend gitignore
 │   └── src/
 │       └── server.js       # Main server file
-└── frontend/                # Frontend React application
-    ├── package.json         # Frontend dependencies
-    ├── vite.config.js      # Vite configuration
-    ├── index.html          # HTML template
-    ├── .eslintrc.cjs       # ESLint configuration
-    ├── .gitignore          # Frontend gitignore
-    └── src/
-        ├── main.jsx        # React entry point
-        ├── App.jsx         # Main app component
-        ├── App.css         # Main styles
-        ├── index.css       # Base styles
-        └── components/     # React components
-            ├── TodoList.jsx
-            ├── UserList.jsx
-            └── HealthCheck.jsx
+├── frontend/                # Frontend React application
+│   ├── package.json         # Frontend dependencies
+│   ├── vite.config.js      # Vite configuration
+│   ├── index.html          # HTML template
+│   ├── .eslintrc.cjs       # ESLint configuration
+│   ├── .gitignore          # Frontend gitignore
+│   └── src/
+│       ├── main.jsx        # React entry point
+│       ├── App.jsx         # Main app component
+│       ├── App.css         # Main styles
+│       ├── index.css       # Base styles
+│       └── components/     # React components
+│           ├── TodoList.jsx
+│           ├── UserList.jsx
+│           └── HealthCheck.jsx
+└── k8s/                     # Kubernetes deployment manifests
+    ├── namespace.yaml       # Application namespace
+    ├── configmap.yaml      # Configuration management
+    ├── backend-deployment.yaml  # Backend deployment
+    ├── backend-service.yaml     # Backend services
+    ├── frontend-deployment.yaml # Frontend deployment
+    ├── frontend-service.yaml    # Frontend services
+    ├── ingress.yaml        # External access routing
+    ├── hpa.yaml           # Horizontal Pod Autoscaler
+    ├── apply-all.sh       # Deployment script
+    ├── delete-all.sh      # Cleanup script
+    └── README.md          # Kubernetes documentation
 ```
 
 ## 🚀 Getting Started
@@ -181,20 +193,56 @@ The Vite frontend is configured to proxy API requests to the backend server duri
 
 ## 🚀 Deployment
 
-### Frontend (Vite Build)
+### Local Development
 ```bash
-npm run build --workspace=frontend
-```
-The built files will be in `frontend/dist/`
-
-### Backend (Production)
-```bash
-npm run start --workspace=backend
+npm run dev
 ```
 
-### Full Build
+### Production Build
 ```bash
 npm run build
+```
+
+### Kubernetes Deployment
+
+The application includes comprehensive Kubernetes manifests for production deployment:
+
+#### Quick Deploy to Kubernetes
+```bash
+# Deploy everything to Kubernetes
+./k8s/apply-all.sh
+
+# Access the application
+kubectl port-forward svc/frontend-service 3000:3000 -n fullstack-app
+kubectl port-forward svc/backend-service 5000:5000 -n fullstack-app
+```
+
+#### Kubernetes Resources Included
+- **Deployments**: Backend (3 replicas) and Frontend (2 replicas)
+- **Services**: ClusterIP and NodePort for both tiers
+- **ConfigMap**: Application configuration
+- **HPA**: Auto-scaling based on CPU/memory usage
+- **Ingress**: External access with path-based routing
+- **Namespace**: Dedicated `fullstack-app` namespace
+
+#### Docker Images Used
+- Frontend: `sriniv7654/usermanagement:frontend-latest`
+- Backend: `sriniv7654/usermanagement:backend-latest`
+
+#### Access Methods
+1. **NodePort**: Direct access via `http://<node-ip>:30000` (frontend), `http://<node-ip>:30001` (backend)
+2. **Port Forward**: Local access via `kubectl port-forward`
+3. **Ingress**: Production access via `http://fullstack-app.local`
+
+See [k8s/README.md](k8s/README.md) for detailed Kubernetes deployment instructions.
+
+### Docker Deployment
+```bash
+# Frontend
+docker run -p 3000:3000 sriniv7654/usermanagement:frontend-latest
+
+# Backend
+docker run -p 5000:5000 sriniv7654/usermanagement:backend-latest
 ```
 
 ## 🛡️ Security Features

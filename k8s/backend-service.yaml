@@ -1,0 +1,36 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-service
+  labels:
+    app: backend
+    tier: api
+spec:
+  type: ClusterIP
+  ports:
+  - port: 5000
+    targetPort: 5000
+    protocol: TCP
+    name: http
+  selector:
+    app: backend
+    tier: api
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-service-nodeport
+  labels:
+    app: backend
+    tier: api
+spec:
+  type: NodePort
+  ports:
+  - port: 5000
+    targetPort: 5000
+    nodePort: 30001
+    protocol: TCP
+    name: http
+  selector:
+    app: backend
+    tier: api
